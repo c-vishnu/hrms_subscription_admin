@@ -14,4 +14,7 @@
 
 /* Compact workspace density: keep primary tables visible in the first viewport. */
 .topbar{height:54px;padding-inline:26px}.search input{height:34px}.content{padding-top:16px;padding-bottom:30px}.heading{align-items:center}.heading p{margin-bottom:5px}.heading h1{font-size:26px;line-height:1.1}.heading>div>small{margin-top:5px;font-size:14px}.heading button{height:38px}.stats{margin:16px 0 8px}.stats article{padding:12px 18px}.stats i{width:34px;height:34px}.stats i svg{width:17px}.stats b{font-size:17px}.tabs [data-slot=tabs-list]{height:40px}.panel,.builder-shell{margin-top:10px}.panel-head{min-height:66px;padding-block:12px}
+.topbar{justify-content:flex-end}.topbar .menu{margin-right:auto}.heading-tools{align-items:center;flex-wrap:wrap;justify-content:flex-end}.module-search{width:300px;background:#fff}.module-search input{height:36px}
+@media(max-width:1120px){.heading{align-items:flex-start;flex-direction:column}.heading-tools{width:100%;justify-content:flex-start}.module-search{flex:1;min-width:250px;max-width:420px}}
 @media(max-width:760px){.topbar{height:54px}.content{padding-top:14px}.heading{align-items:flex-start}.stats{margin-top:14px}.stats article{padding:11px 14px}}
+@media(max-width:620px){.heading-tools{display:grid!important;grid-template-columns:1fr 1fr}.module-search{grid-column:1/-1;width:100%;max-width:none}.heading-tools button{width:100%}}
