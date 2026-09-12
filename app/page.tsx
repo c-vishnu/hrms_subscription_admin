@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Bell, Boxes, Check, ChevronDown, CircleHelp, CreditCard, Eye, FileText, GripVertical, LayoutDashboard, Menu, MoreHorizontal, PackagePlus, Pencil, Plus, Search, Settings, Sparkles, Trash2, Users, X } from "lucide-react";
+import { Bell, Boxes, BriefcaseBusiness, Building2, CalendarDays, Check, ChevronDown, CircleHelp, Clock3, CreditCard, Eye, GripVertical, LayoutDashboard, ListTodo, Menu, MoreHorizontal, PackagePlus, PanelLeftClose, PanelLeftOpen, Pencil, Plus, Search, Settings, Sparkles, Trash2, UserRound, UserSearch, Users, WalletCards, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -38,6 +38,7 @@ export default function Home() {
   const [moduleDialog, setModuleDialog] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [mobileNav, setMobileNav] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [heroTitle, setHeroTitle] = useState("Simple HRMS pricing that grows with your team");
   const [heroCopy, setHeroCopy] = useState("Choose the right plan for your people operations. All plans are billed annually.");
   const [announcement, setAnnouncement] = useState("Save 15% with annual billing");
@@ -49,6 +50,16 @@ export default function Home() {
       if (data) { setPlans(data.plans || seedPlans); setModules(data.modules || seedModules); setHeroTitle(data.heroTitle || heroTitle); setHeroCopy(data.heroCopy || heroCopy); setAnnouncement(data.announcement || announcement); }
     } catch { /* retain defaults */ }
   }, []);
+
+  useEffect(() => {
+    setSidebarCollapsed(localStorage.getItem("wayvida-sidebar-collapsed") === "true");
+  }, []);
+
+  const toggleSidebar = () => setSidebarCollapsed((current) => {
+    const next = !current;
+    localStorage.setItem("wayvida-sidebar-collapsed", String(next));
+    return next;
+  });
 
   useEffect(() => {
     const context = (document as Document & { modelContext?: WebMcpContext }).modelContext;
@@ -99,12 +110,24 @@ export default function Home() {
   };
   const deletePlan = () => { const next = plans.filter((p) => p.id !== deleteId); setPlans(next); persist(next, modules); setDeleteId(null); toast.success("Plan deleted"); };
 
-  return <div className="app-shell">
+  return <div className={`app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
     <Toaster richColors position="top-right" />
     <aside className={`sidebar ${mobileNav ? "open" : ""}`}>
-      <div className="brand"><span>W</span>Wayvida<button onClick={() => setMobileNav(false)} aria-label="Close"><X /></button></div>
+      <div className="brand"><span><Check /></span><strong>HRMS</strong><button className="desktop-collapse" onClick={toggleSidebar} aria-label={sidebarCollapsed ? "Expand master menu" : "Collapse master menu"}>{sidebarCollapsed ? <PanelLeftOpen /> : <PanelLeftClose />}</button><button className="mobile-close" onClick={() => setMobileNav(false)} aria-label="Close"><X /></button></div>
       <p className="side-label">WORKSPACE</p>
-      <nav><a href="#"><LayoutDashboard />Dashboard</a><a href="#"><Users />Customers</a><a className="active" href="#"><CreditCard />Subscription</a><a href="#"><Boxes />Modules</a><a href="#"><FileText />Invoices</a></nav>
+      <nav>
+        <a href="#" title="Dashboard"><LayoutDashboard /><span>Dashboard</span></a>
+        <a href="#" title="Employees"><UserRound /><span>Employees</span></a>
+        <a href="#" title="Departments"><Building2 /><span>Departments</span></a>
+        <a href="#" title="Designations"><BriefcaseBusiness /><span>Designations</span></a>
+        <a href="#" title="Customers"><Users /><span>Customers</span></a>
+        <a href="#" title="Attendance"><Clock3 /><span>Attendance</span></a>
+        <a href="#" title="Leave"><CalendarDays /><span>Leave</span></a>
+        <a href="#" title="Tasks"><ListTodo /><span>Tasks</span></a>
+        <a href="#" title="Payroll"><WalletCards /><span>Payroll</span></a>
+        <a href="#" title="Recruitment"><UserSearch /><span>Recruitment</span></a>
+        <a className="active" href="#" title="Subscription"><CreditCard /><span>Subscription</span></a>
+      </nav>
       <div className="side-bottom"><a href="#"><Settings />Settings</a><a href="#"><CircleHelp />Help & support</a><div className="profile"><b>AK</b><span><strong>Arun Kumar</strong><small>Super admin</small></span><MoreHorizontal /></div></div>
     </aside>
     <main>
