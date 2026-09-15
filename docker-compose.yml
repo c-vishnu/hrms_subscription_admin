@@ -1,0 +1,29 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hrms-subscription-admin:local
+    container_name: hrms-subscription-admin
+    ports:
+      - "${APP_PORT:-8080}:8787"
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8787"
+      WRANGLER_SEND_METRICS: "false"
+      CLOUDFLARE_CF_FETCH_ENABLED: "false"
+    volumes:
+      - wrangler-state:/app/.wrangler/state
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 20s
+    security_opt:
+      - seccomp=unconfined
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  wrangler-state:
