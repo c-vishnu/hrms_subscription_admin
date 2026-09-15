@@ -70,3 +70,10 @@
 [data-slot=switch][data-state=checked]{background:#16a34a}
 [data-slot=switch] [data-slot=switch-thumb]{background:#fff;box-shadow:0 1px 2px #0f172a40}
 [data-slot=switch]:focus-visible{outline:2px solid #16a34a59;outline-offset:2px}
+
+/* Most popular plan picker: exactly one plan can carry the storefront highlight. */
+.popular-pick{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 10px;border:1px solid #dbe2ec;border-radius:6px;background:#fff;color:#5d6d84;font-size:12px;font-weight:650;white-space:nowrap}
+.popular-pick svg{width:14px;height:14px}
+.popular-pick:hover{border-color:#f0b429;background:#fffaf0;color:#b4730d}
+.popular-pick.on{border-color:#f0b429;background:#fff6e5;color:#a9680a}
+.popular-pick.on svg{fill:#f5b01e;color:#e09b12}
