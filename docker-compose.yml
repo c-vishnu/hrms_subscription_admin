@@ -6,7 +6,7 @@ services:
     image: hrms-subscription-admin:local
     container_name: hrms-subscription-admin
     ports:
-      - "${APP_PORT:-8080}:8787"
+      - "${APP_PORT:-8989}:8787"
     environment:
       HOST: "0.0.0.0"
       PORT: "8787"
