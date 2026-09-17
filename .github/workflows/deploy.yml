@@ -1,0 +1,178 @@
+name: Deploy HRMS Subscription Admin
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: hrms-subscription-admin-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to On-Prem Server
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ----------------------------------------
+      # 1. Checkout repository
+      # ----------------------------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+
+      # ----------------------------------------
+      # 2. Setup SSH and deploy
+      # ----------------------------------------
+      - name: Connect and Deploy
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SSH_PASSPHRASE: ${{ secrets.SERVER_SSH_PASSPHRASE }}
+
+        run: |
+          set -e
+
+          echo "========================================="
+          echo "Setting up SSH"
+          echo "========================================="
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          # Save private key
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Start SSH agent
+          eval "$(ssh-agent -s)"
+
+          # Create askpass script
+          cat > ~/.ssh/askpass.sh << 'EOF'
+          #!/bin/sh
+          printf '%s\n' "$SSH_PASSPHRASE"
+          EOF
+
+          chmod 700 ~/.ssh/askpass.sh
+
+          export SSH_ASKPASS="$HOME/.ssh/askpass.sh"
+          export SSH_ASKPASS_REQUIRE=force
+          export DISPLAY=:0
+
+          echo "Adding SSH key..."
+
+          ssh-add ~/.ssh/deploy_key
+
+          echo "SSH key added successfully."
+
+
+          # ----------------------------------------
+          # 3. Add server to known_hosts
+          # ----------------------------------------
+
+          echo "Adding server to known_hosts..."
+
+          ssh-keyscan \
+            -p "$SERVER_PORT" \
+            "$SERVER_HOST" >> ~/.ssh/known_hosts
+
+          chmod 600 ~/.ssh/known_hosts
+
+
+          # ----------------------------------------
+          # 4. Test SSH connection
+          # ----------------------------------------
+
+          echo "========================================="
+          echo "Testing SSH connection"
+          echo "========================================="
+
+          ssh \
+            -o BatchMode=yes \
+            -o ConnectTimeout=15 \
+            -p "$SERVER_PORT" \
+            "$SERVER_USER@$SERVER_HOST" \
+            "echo 'SSH connection successful'"
+
+
+          # ----------------------------------------
+          # 5. Deploy application
+          # ----------------------------------------
+
+          echo "========================================="
+          echo "Starting HRMS deployment"
+          echo "========================================="
+
+          ssh \
+            -o BatchMode=yes \
+            -o ConnectTimeout=15 \
+            -p "$SERVER_PORT" \
+            "$SERVER_USER@$SERVER_HOST" << 'EOF'
+
+            set -e
+
+            PROJECT_DIR="/home/devuser/projects/hrms_subscription_admin"
+
+            echo "Changing to project directory..."
+
+            cd "$PROJECT_DIR"
+
+            echo "Current directory:"
+            pwd
+
+            echo ""
+            echo "Current Git commit:"
+            git rev-parse --short HEAD
+
+            echo ""
+            echo "Fetching latest code..."
+
+            git fetch origin main
+
+            echo ""
+            echo "Updating code..."
+
+            git reset --hard origin/main
+
+            echo ""
+            echo "New Git commit:"
+
+            git rev-parse --short HEAD
+
+            echo ""
+            echo "Building and starting Docker container..."
+
+            docker compose up -d --build --remove-orphans
+
+            echo ""
+            echo "Container status:"
+
+            docker compose ps
+
+            echo ""
+            echo "Cleaning unused Docker images..."
+
+            docker image prune -f
+
+            echo ""
+            echo "========================================="
+            echo "HRMS deployment successful!"
+            echo "========================================="
+
+          EOF
+
+
+      # ----------------------------------------
+      # 6. Final status
+      # ----------------------------------------
+
+      - name: Deployment completed
+        run: |
+          echo "========================================="
+          echo "HRMS Subscription Admin deployment successful"
+          echo "Branch: main"
+          echo "========================================="
