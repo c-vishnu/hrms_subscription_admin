@@ -128,7 +128,7 @@ export default function Home() {
   };
   const createPlan = () => {
     if (!planDraft.name.trim()) return;
-    const next = [...plans, { id: `${planDraft.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`, name: planDraft.name.trim(), description: "A flexible plan for your customers.", ...planDraft, active: false, recommended: false, modules: [], annualModules: [] }];
+    const next = [...plans, { id: `${planDraft.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`, ...planDraft, name: planDraft.name.trim(), description: "A flexible plan for your customers.", active: false, recommended: false, modules: [], annualModules: [] }];
     setPlans(next); persist(next, modules); setPlanDraft(emptyPlanDraft(next.length + 1)); setPlanDialog(false); toast.success("Plan created");
   };
   const openPlanCreator = () => {
